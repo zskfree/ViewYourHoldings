@@ -1,0 +1,21 @@
+{
+  "manifest_version": 3,
+  "name": "极简盯盘-持仓盈亏",
+  "version": "0.1.0",
+  "description": "基于腾讯财经 API 的极简 A股/港股/美股行情监控，1分钟自动更新",
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "assets/icons/icon16.png",
+      "48": "assets/icons/icon48.png",
+      "128": "assets/icons/icon128.png"
+    }
+  },
+  "icons": {
+    "16": "assets/icons/icon16.png",
+    "48": "assets/icons/icon48.png",
+    "128": "assets/icons/icon128.png"
+  },
+  "permissions": ["storage"],
+  "host_permissions": ["*://qt.gtimg.cn/*", "*://smartbox.gtimg.cn/*"]
+}
