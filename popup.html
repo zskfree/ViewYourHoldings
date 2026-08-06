@@ -55,8 +55,17 @@
     background: transparent !important;
   }
   body.mofish .num-blur {
-    filter: blur(4px);
-    user-select: none;
+    filter: none;
+  }
+  body.mofish #openAddBtn {
+    display: none;
+  }
+  body.mofish .stock-name-cell {
+    color: var(--text-primary);
+    cursor: default;
+  }
+  body.mofish .stock-name-cell:hover {
+    text-decoration: none;
   }
 
   .container {
@@ -224,6 +233,9 @@
   th:first-child { text-align: left; padding-left: 2px; }
   th:hover { color: var(--text-primary); }
   th.sort-active { color: var(--border-focus); font-weight: 600; }
+  th[data-key="changePercent"]:not(.sort-active)::after { content: " ↕"; }
+  th.sort-active.sort-asc::after { content: " ↑"; }
+  th.sort-active.sort-desc::after { content: " ↓"; }
 
   tr {
     height: 44px;
@@ -509,15 +521,15 @@
       <div id="viewList" class="view active">
 
         <div class="header-bar">
-          <div class="brand-title">极简盯盘</div>
+          <div class="brand-title" data-normal-text="极简盯盘" data-boss-text="项目数据概览">极简盯盘</div>
           <div class="actions-group">
             <button class="add-link-btn" id="openAddBtn">
-              <span>+ 添加持仓</span>
+              <span data-normal-text="+ 添加持仓" data-boss-text="+ 新建项目">+ 添加持仓</span>
             </button>
             <button class="icon-btn" id="refreshBtn" title="刷新行情">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 12a9 9 0 1 1-3-6.7"/><path d="M21 3v6h-6"/></svg>
             </button>
-            <button class="icon-btn" id="mofishBtn" title="摸鱼隐私模式">
+            <button class="icon-btn" id="mofishBtn" title="启用老板键" aria-label="切换隐私模式" aria-pressed="false">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7Z"/><circle cx="12" cy="12" r="3"/></svg>
             </button>
           </div>
@@ -526,25 +538,25 @@
         <div class="summary-section">
           <div class="total-group">
             <div class="total-block">
-              <div class="label">今日浮盈</div>
+              <div class="label" data-normal-text="今日浮盈" data-boss-text="今日进展">今日浮盈</div>
               <div class="value num-blur" id="totalToday">--</div>
             </div>
             <div class="total-block">
-              <div class="label">持仓盈亏</div>
+              <div class="label" data-normal-text="持仓盈亏" data-boss-text="累计进展">持仓盈亏</div>
               <div class="value num-blur" id="totalHolding">--</div>
             </div>
           </div>
           <div class="indices-pills">
             <div class="idx-pill">
-              <span class="idx-name">上证</span>
+              <span class="idx-name" data-normal-text="上证" data-boss-text="区域 A">上证</span>
               <span class="idx-val" id="idxSh">--</span>
             </div>
             <div class="idx-pill">
-              <span class="idx-name">沪深300</span>
+              <span class="idx-name" data-normal-text="沪深300" data-boss-text="区域 B">沪深300</span>
               <span class="idx-val" id="idxHs300">--</span>
             </div>
             <div class="idx-pill">
-              <span class="idx-name">创业板</span>
+              <span class="idx-name" data-normal-text="创业板" data-boss-text="区域 C">创业板</span>
               <span class="idx-val" id="idxCyb">--</span>
             </div>
           </div>
@@ -554,18 +566,18 @@
           <table>
             <thead>
               <tr>
-                <th data-key="name">名称</th>
-                <th data-key="current">最新价</th>
-                <th data-key="changePercent">涨跌幅 ↕</th>
-                <th data-key="todayProfit">今日浮盈</th>
-                <th data-key="holdingProfit">持仓盈亏</th>
+                <th data-key="name" data-normal-text="名称" data-boss-text="项目">名称</th>
+                <th data-key="current" data-normal-text="最新价" data-boss-text="当前值">最新价</th>
+                <th data-key="changePercent" data-normal-text="涨跌幅" data-boss-text="日变化">涨跌幅</th>
+                <th data-key="todayProfit" data-normal-text="今日浮盈" data-boss-text="今日进展">今日浮盈</th>
+                <th data-key="holdingProfit" data-normal-text="持仓盈亏" data-boss-text="累计进展">持仓盈亏</th>
               </tr>
             </thead>
             <tbody id="rows"></tbody>
           </table>
         </div>
 
-        <div id="emptyState" class="empty-state">暂无持仓，请点击上方按钮添加</div>
+        <div id="emptyState" class="empty-state" data-normal-text="暂无持仓，请点击上方按钮添加" data-boss-text="暂无项目数据">暂无持仓，请点击上方按钮添加</div>
         <div id="loadingState" class="loading-state" style="display:none;">正在更新行情...</div>
       </div>
 
@@ -620,9 +632,6 @@
     </div>
   </div>
 
-  <script src="src/storage.js"></script>
-  <script src="src/quote.js"></script>
-  <script src="src/calc.js"></script>
-  <script src="src/popup.js"></script>
+  <script type="module" src="src/main.js"></script>
 </body>
 </html>

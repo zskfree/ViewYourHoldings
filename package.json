@@ -1,0 +1,10 @@
+{
+  "name": "view-your-holdings",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test",
+    "check": "node --check src/main.js && node --check src/ui/popup-view.js && node --check src/app/holdings-app.js && node --check src/domain/portfolio.js && node --check src/domain/stock-code.js && node --check src/adapters/holdings-repository.js && node --check src/adapters/tencent-market-data.js"
+  }
+}
