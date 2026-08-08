@@ -17,7 +17,7 @@ export function createPopupView(
   let activeViewTransition = null;
   let pendingDeleteConfirmation = null;
   const renderedValues = new Map();
-  const EASE_OUT = "cubic-bezier(0.23, 1, 0.32, 1)";
+  const EASE_OUT = "cubic-bezier(0.16, 1, 0.3, 1)";
   const numericSortKeys = new Set([
     "current",
     "changePercent",
@@ -592,10 +592,14 @@ export function createPopupView(
       ],
       { duration: 180 },
     );
-    element("confirmDeleteBtn")?.focus?.({ preventScroll: true });
+    setTimeout(() => {
+      element("confirmDeleteBtn")?.focus?.({ preventScroll: true });
+    }, 10);
 
     return new Promise((resolve) => {
-      pendingDeleteConfirmation = { popover, trigger, resolve };
+      setTimeout(() => {
+        pendingDeleteConfirmation = { popover, trigger, resolve };
+      }, 0);
     });
   }
 
@@ -638,7 +642,9 @@ export function createPopupView(
       addRecordRow("", "", "", { animate: true, focus: true }),
     );
     element("saveDetailBtn").addEventListener("click", saveDetail);
-    element("deleteDetailBtn").addEventListener("click", async () => {
+    element("deleteDetailBtn").addEventListener("click", async (event) => {
+      event?.preventDefault?.();
+      event?.stopPropagation?.();
       if (currentEditingHolding && (await requestDeleteConfirmation())) {
         await actions.deleteHolding(currentEditingHolding.code);
         await returnToList();
