@@ -102,129 +102,126 @@
 
   <!-- RIGHT COLUMN: 1:1 Accurate Mockup of User's Extension Interface -->
   <g transform="translate(630, 20)" filter="url(#shadow)">
-    <!-- Container Card (Light Mode UI) -->
-    <rect width="520" height="400" rx="12" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1" />
+    <!-- Container Card (Aurora Glass UI) -->
+    <rect width="520" height="400" rx="16" fill="#F0F4F8" stroke="#E2E8F0" stroke-width="1" />
 
-    <!-- 1. Header Bar -->
-    <g transform="translate(20, 18)">
-      <!-- Green Status Dot -->
-      <circle cx="6" cy="12" r="4" fill="#10B981" />
-      <!-- Extension Title -->
-      <text x="18" y="16" fill="#1E293B" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="16" font-weight="700">极简盯盘</text>
+    <!-- Aurora Background Gradients inside Card -->
+    <g clip-path="url(#card-clip)">
+      <clipPath id="card-clip">
+        <rect width="520" height="400" rx="16" />
+      </clipPath>
+      <!-- Aurora Gradient Overlay -->
+      <circle cx="100" cy="80" r="180" fill="#E0C3FC" opacity="0.45" filter="blur(30px)" />
+      <circle cx="420" cy="320" r="200" fill="#8EC5FC" opacity="0.45" filter="blur(30px)" />
+      <rect width="520" height="400" fill="rgba(255, 255, 255, 0.45)" />
 
-      <!-- Right Action Controls -->
-      <!-- Add Holding Button -->
-      <g transform="translate(300, 0)">
-        <rect width="84" height="26" rx="6" fill="#0F172A" />
-        <text x="12" y="17" fill="#FFFFFF" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="600">+ 添加持仓</text>
-      </g>
-      <!-- Refresh Icon -->
-      <g transform="translate(398, 4)">
-        <circle cx="9" cy="9" r="8" fill="none" stroke="#64748B" stroke-width="1.2" />
-        <path d="M12 6 A4.5 4.5 0 1 1 7.5 4.5" fill="none" stroke="#64748B" stroke-width="1.5" stroke-linecap="round" />
-        <path d="M9 3 l2.5 1.5 L9 6 Z" fill="#64748B" />
-      </g>
-      <!-- Eye Mask Icon -->
-      <g transform="translate(432, 4)">
-        <circle cx="10" cy="9" r="4" fill="none" stroke="#64748B" stroke-width="1.5" />
-        <path d="M 2 9 Q 10 2 18 9 Q 10 16 2 9 Z" fill="none" stroke="#64748B" stroke-width="1.5" />
-      </g>
-    </g>
+      <!-- 1. Header Bar -->
+      <g transform="translate(20, 18)">
+        <!-- Green Status Dot -->
+        <circle cx="6" cy="12" r="4" fill="#34C759" />
+        <!-- Extension Title -->
+        <text x="18" y="16" fill="#1D1D1F" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif" font-size="15" font-weight="600">极简盯盘</text>
 
-    <!-- 2. Market Indices (Top Right) & Profit Summary (Top Left) -->
-    <g transform="translate(20, 56)">
-      <!-- Right Market Indices Pills -->
-      <g transform="translate(310, 0)">
-        <!-- Index 1: 上证 -->
-        <rect width="170" height="20" rx="4" fill="#F8FAFC" />
-        <text x="44" y="14" fill="#64748B" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11">上证</text>
-        <text x="74" y="14" fill="#EF4444" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11" font-weight="600">3878.43</text>
-
-        <!-- Index 2: 沪深300 -->
-        <g transform="translate(0, 24)">
-          <rect width="170" height="20" rx="4" fill="#F8FAFC" />
-          <text x="32" y="14" fill="#64748B" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11">沪深300</text>
-          <text x="78" y="14" fill="#EF4444" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11" font-weight="600">4658.15</text>
+        <!-- Right Action Controls -->
+        <!-- Add Holding Button -->
+        <g transform="translate(290, 0)">
+          <rect width="86" height="26" rx="13" fill="none" stroke="#D1D5DB" stroke-width="1" />
+          <text x="11" y="17" fill="#1D1D1F" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif" font-size="11" font-weight="500">+ 添加持仓</text>
         </g>
-
-        <!-- Index 3: 创业板 -->
-        <g transform="translate(0, 48)">
-          <rect width="170" height="20" rx="4" fill="#F8FAFC" />
-          <text x="32" y="14" fill="#64748B" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11">创业板</text>
-          <text x="74" y="14" fill="#EF4444" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11" font-weight="600">3535.14</text>
+        <!-- Refresh Icon -->
+        <g transform="translate(390, 4)">
+          <circle cx="9" cy="9" r="8" fill="none" stroke="#6E6E73" stroke-width="1.2" />
+          <path d="M12 6 A4.5 4.5 0 1 1 7.5 4.5" fill="none" stroke="#6E6E73" stroke-width="1.5" stroke-linecap="round" />
+          <path d="M9 3 l2.5 1.5 L9 6 Z" fill="#6E6E73" />
+        </g>
+        <!-- Eye Mask Icon -->
+        <g transform="translate(424, 4)">
+          <circle cx="10" cy="9" r="4" fill="none" stroke="#6E6E73" stroke-width="1.5" />
+          <path d="M 2 9 Q 10 2 18 9 Q 10 16 2 9 Z" fill="none" stroke="#6E6E73" stroke-width="1.5" />
         </g>
       </g>
 
-      <!-- Left Profit Summary Labels -->
-      <g transform="translate(0, 10)">
-        <text x="0" y="14" fill="#64748B" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="12">今日浮盈</text>
-        <text x="80" y="14" fill="#64748B" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="12">持仓盈亏</text>
+      <!-- 2. Market Indices (Top Right) & Profit Summary (Top Left) -->
+      <g transform="translate(20, 58)">
+        <!-- Right Market Indices Pills -->
+        <g transform="translate(320, 0)">
+          <!-- Index 1: 上证 -->
+          <g transform="translate(0, 0)">
+            <text x="50" y="12" text-anchor="end" fill="#6E6E73" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11">上证</text>
+            <text x="130" y="12" text-anchor="end" fill="#FF3B30" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="12" font-weight="600">3940.04</text>
+          </g>
+          <!-- Index 2: 沪深300 -->
+          <g transform="translate(0, 20)">
+            <text x="50" y="12" text-anchor="end" fill="#6E6E73" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11">沪深300</text>
+            <text x="130" y="12" text-anchor="end" fill="#FF3B30" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="12" font-weight="600">4694.44</text>
+          </g>
+          <!-- Index 3: 创业板 -->
+          <g transform="translate(0, 40)">
+            <text x="50" y="12" text-anchor="end" fill="#6E6E73" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11">创业板</text>
+            <text x="130" y="12" text-anchor="end" fill="#FF3B30" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="12" font-weight="600">3563.12</text>
+          </g>
+        </g>
 
-        <text x="0" y="44" fill="#10B981" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="20" font-weight="800">-24.00</text>
-        <text x="80" y="44" fill="#10B981" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="20" font-weight="800">-2494.40</text>
-      </g>
-    </g>
+        <!-- Left Profit Summary Labels & Ultra Thin Numbers -->
+        <g transform="translate(0, 4)">
+          <text x="0" y="12" fill="#6E6E73" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" font-weight="500">今日浮盈</text>
+          <text x="100" y="12" fill="#6E6E73" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" font-weight="500">持仓盈亏</text>
 
-    <!-- Dotted Divider Line -->
-    <line x1="20" y1="138" x2="500" y2="138" stroke="#E2E8F0" stroke-width="1" stroke-dasharray="3,3" />
-
-    <!-- 3. Table Column Headers -->
-    <g transform="translate(20, 168)">
-      <text x="0" y="0" fill="#64748B" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="13" font-weight="500">名称</text>
-      <text x="140" y="0" text-anchor="end" fill="#64748B" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="13" font-weight="500">最新价</text>
-      <text x="240" y="0" text-anchor="end" fill="#64748B" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="13" font-weight="500">涨跌幅 ↕</text>
-      <text x="330" y="0" text-anchor="end" fill="#64748B" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="13" font-weight="500">今日浮盈</text>
-      <text x="470" y="0" text-anchor="end" fill="#2563EB" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="13" font-weight="700">持仓盈亏</text>
-
-      <!-- Underline Border below table header -->
-      <line x1="0" y1="12" x2="480" y2="12" stroke="#F1F5F9" stroke-width="1.5" />
-    </g>
-
-    <!-- 4. Stock Rows (Directly matching User's Image) -->
-    <g transform="translate(20, 205)">
-      <!-- Row 1: 天目湖 -->
-      <g transform="translate(0, 0)">
-        <text x="0" y="14" fill="#2563EB" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14" font-weight="700">天目湖</text>
-        <text x="140" y="14" text-anchor="end" fill="#1E293B" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14">8.90</text>
-        <text x="240" y="14" text-anchor="end" fill="#10B981" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14" font-weight="600">-0.34%</text>
-        <text x="330" y="14" text-anchor="end" fill="#10B981" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14" font-weight="600">-12.00</text>
-        <text x="470" y="8" text-anchor="end" fill="#10B981" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14" font-weight="700">-1193.20</text>
-        <text x="470" y="24" text-anchor="end" fill="#10B981" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11" font-weight="600">-25.10%</text>
-        
-        <line x1="0" y1="36" x2="480" y2="36" stroke="#F8FAFC" stroke-width="1" />
+          <text x="0" y="46" fill="#34C759" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif" font-size="30" font-weight="300" letter-spacing="-0.05em">-4.00</text>
+          <text x="100" y="46" fill="#34C759" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif" font-size="30" font-weight="300" letter-spacing="-0.05em">-2502.40</text>
+        </g>
       </g>
 
-      <!-- Row 2: 曲江文旅 -->
-      <g transform="translate(0, 46)">
-        <text x="0" y="14" fill="#2563EB" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14" font-weight="700">曲江文旅</text>
-        <text x="140" y="14" text-anchor="end" fill="#1E293B" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14">7.63</text>
-        <text x="240" y="14" text-anchor="end" fill="#10B981" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14" font-weight="600">-0.39%</text>
-        <text x="330" y="14" text-anchor="end" fill="#10B981" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14" font-weight="600">-12.00</text>
-        <text x="470" y="8" text-anchor="end" fill="#10B981" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14" font-weight="700">-1301.20</text>
-        <text x="470" y="24" text-anchor="end" fill="#10B981" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11" font-weight="600">-29.89%</text>
+      <!-- 3. Table Column Headers -->
+      <g transform="translate(20, 150)">
+        <text x="0" y="0" fill="#8E8E93" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" font-weight="600">名称</text>
+        <text x="140" y="0" text-anchor="end" fill="#8E8E93" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" font-weight="600">最新价</text>
+        <text x="235" y="0" text-anchor="end" fill="#8E8E93" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" font-weight="600">涨跌幅 ↕</text>
+        <text x="330" y="0" text-anchor="end" fill="#8E8E93" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" font-weight="600">今日浮盈</text>
+        <text x="470" y="0" text-anchor="end" fill="#007AFF" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" font-weight="600">持仓盈亏 ↓</text>
 
-        <line x1="0" y1="36" x2="480" y2="36" stroke="#F8FAFC" stroke-width="1" />
+        <!-- Underline Border below table header -->
+        <line x1="0" y1="12" x2="480" y2="12" stroke="rgba(60,60,67,0.12)" stroke-width="1" />
       </g>
 
-      <!-- Row 3: 比亚迪 -->
-      <g transform="translate(0, 92)">
-        <text x="0" y="14" fill="#2563EB" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14" font-weight="700">比亚迪</text>
-        <text x="140" y="14" text-anchor="end" fill="#1E293B" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14">90.82</text>
-        <text x="240" y="14" text-anchor="end" fill="#10B981" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14" font-weight="600">-0.36%</text>
-        <text x="330" y="14" text-anchor="end" fill="#94A3B8" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14">--</text>
-        <text x="470" y="14" text-anchor="end" fill="#94A3B8" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14">--</text>
+      <!-- 4. Stock Rows (1:1 Match with User's Screenshot) -->
+      <g transform="translate(20, 185)">
+        <!-- Row 1: 天目湖 -->
+        <g transform="translate(0, 0)">
+          <text x="0" y="14" fill="#007AFF" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="13" font-weight="600">天目湖</text>
+          <text x="140" y="14" text-anchor="end" fill="#1D1D1F" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="13">8.91</text>
+          <text x="235" y="14" text-anchor="end" fill="#34C759" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="13" font-weight="500">-0.34%</text>
+          <text x="330" y="14" text-anchor="end" fill="#34C759" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="13" font-weight="500">-12.00</text>
+          <text x="470" y="8" text-anchor="end" fill="#34C759" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="13" font-weight="600">-1189.20</text>
+          <text x="470" y="23" text-anchor="end" fill="#34C759" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" font-weight="500">-25.02%</text>
 
-        <line x1="0" y1="34" x2="480" y2="34" stroke="#F8FAFC" stroke-width="1" />
+          <line x1="0" y1="34" x2="480" y2="34" stroke="rgba(60,60,67,0.06)" stroke-width="1" />
+        </g>
+
+        <!-- Row 2: 曲江文旅 -->
+        <g transform="translate(0, 44)">
+          <text x="0" y="14" fill="#007AFF" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="13" font-weight="600">曲江文旅</text>
+          <text x="140" y="14" text-anchor="end" fill="#1D1D1F" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="13">7.60</text>
+          <text x="235" y="14" text-anchor="end" fill="#FF3B30" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="13" font-weight="500">+0.26%</text>
+          <text x="330" y="14" text-anchor="end" fill="#FF3B30" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="13" font-weight="500">+8.00</text>
+          <text x="470" y="8" text-anchor="end" fill="#34C759" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="13" font-weight="600">-1313.20</text>
+          <text x="470" y="23" text-anchor="end" fill="#34C759" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" font-weight="500">-30.17%</text>
+
+          <line x1="0" y1="34" x2="480" y2="34" stroke="rgba(60,60,67,0.06)" stroke-width="1" />
+        </g>
+
+        <!-- Row 3: 比亚迪 -->
+        <g transform="translate(0, 88)">
+          <text x="0" y="14" fill="#007AFF" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="13" font-weight="600">比亚迪</text>
+          <text x="140" y="14" text-anchor="end" fill="#1D1D1F" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="13">90.04</text>
+          <text x="235" y="14" text-anchor="end" fill="#FF3B30" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="13" font-weight="500">+0.66%</text>
+          <text x="330" y="14" text-anchor="end" fill="#8E8E93" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="13">--</text>
+          <text x="470" y="14" text-anchor="end" fill="#8E8E93" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="13">--</text>
+        </g>
       </g>
 
-      <!-- Row 4: 宁德时代 -->
-      <g transform="translate(0, 134)">
-        <text x="0" y="14" fill="#2563EB" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14" font-weight="700">宁德时代</text>
-        <text x="140" y="14" text-anchor="end" fill="#1E293B" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14">405.20</text>
-        <text x="240" y="14" text-anchor="end" fill="#EF4444" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14" font-weight="600">+2.56%</text>
-        <text x="330" y="14" text-anchor="end" fill="#94A3B8" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14">--</text>
-        <text x="470" y="14" text-anchor="end" fill="#94A3B8" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14">--</text>
-      </g>
+      <!-- 5. Footer Status -->
+      <text x="260" y="375" text-anchor="middle" fill="#8E8E93" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11">更新于 05:32</text>
     </g>
   </g>
 </svg>
