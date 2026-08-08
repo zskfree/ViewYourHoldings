@@ -303,11 +303,18 @@
     background: transparent;
     border: none;
     box-shadow: none;
+    gap: 12px;
   }
   .total-group {
     display: flex;
-    gap: 24px;
+    gap: 16px;
     align-items: flex-end;
+    flex: 1;
+    min-width: 0;
+  }
+  .total-block {
+    min-width: 0;
+    flex: 1;
   }
   .total-block .label {
     font-size: 11px;
@@ -318,11 +325,14 @@
     letter-spacing: 0.02em;
   }
   .total-block .value {
-    font-size: 32px;
+    font-size: clamp(16px, 5.5vw, 32px);
     font-weight: 300;
-    letter-spacing: -0.06em;
+    letter-spacing: -0.05em;
     font-variant-numeric: tabular-nums;
     line-height: 1.1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   .indices-pills {
@@ -330,6 +340,7 @@
     flex-direction: column;
     align-items: flex-end;
     gap: 6px;
+    flex-shrink: 0;
   }
   .idx-pill {
     display: inline-flex;
@@ -413,6 +424,7 @@
     border-bottom: 1px solid color-mix(in srgb, var(--border-color) 40%, transparent);
     white-space: nowrap;
     vertical-align: middle;
+    max-width: 0;
   }
   td.stock-name-cell {
     text-align: left;
@@ -543,10 +555,13 @@
     color: var(--text-secondary);
     margin-bottom: 4px;
     box-shadow: var(--shadow-sm);
+    gap: 8px;
   }
   .stats-summary-card .stat-item {
     display: flex;
     flex-direction: column;
+    min-width: 0;
+    overflow: hidden;
   }
   .stats-summary-card .stat-val {
     font-size: 13px;
@@ -554,6 +569,9 @@
     color: var(--text-primary);
     margin-top: 1px;
     font-variant-numeric: tabular-nums;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   .records-header {
@@ -622,10 +640,18 @@
     min-width: 0;
     font-variant-numeric: tabular-nums;
   }
-  .record-row input[type="date"] {
+  .record-row input[type="number"]::-webkit-outer-spin-button,
+  .record-row input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  .record-row input[type="number"] {
+    -moz-appearance: textfield;
+  }
+  .record-row input.rec-date {
     font-family: inherit;
     font-size: 11px;
-    padding: 0 4px;
+    padding: 0 6px;
   }
   .record-row input:focus {
     border-color: var(--border-focus);

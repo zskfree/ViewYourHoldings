@@ -150,6 +150,9 @@ export function createPopupView(
   function updateRenderedValue(target, key, text, tone = null) {
     const previous = renderedValues.get(key);
     target.textContent = text;
+    if (text !== "--" && text !== "") {
+      target.title = text;
+    }
     renderedValues.set(key, text);
 
     if (previous == null || previous === text || text === "--") {
@@ -177,7 +180,8 @@ export function createPopupView(
     const records = [];
 
     rows.forEach((row) => {
-      const date = row.querySelector(".rec-date").value;
+      const rawDate = row.querySelector(".rec-date").value || "";
+      const date = rawDate.trim().replace(/-/g, "/");
       const price = row.querySelector(".rec-price").value;
       const shares = row.querySelector(".rec-shares").value;
 
@@ -212,8 +216,9 @@ export function createPopupView(
     const container = element("recordsList");
     const row = documentRef.createElement("div");
     row.className = "record-row";
+    const formattedDate = String(date || "").trim().replace(/-/g, "/");
     row.innerHTML = `
-    <input type="date" class="rec-date" value="${date}" />
+    <input type="text" class="rec-date" placeholder="YYYY/MM/DD" value="${formattedDate}" autocomplete="off" />
     <input type="number" step="0.01" class="rec-price" placeholder="买入单价" value="${price != null ? price : ""}" />
     <input type="number" step="1" min="1" class="rec-shares" placeholder="买入股数" value="${shares != null ? shares : ""}" />
     <button type="button" class="remove-rec-btn" title="删除此笔记录" aria-label="删除此笔买入记录">×</button>
