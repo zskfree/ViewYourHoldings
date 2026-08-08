@@ -4,7 +4,6 @@ export function createPopupView(
   documentRef,
   {
     alertFn = globalThis.alert,
-    confirmFn = globalThis.confirm,
     formatTimeFn = (timestamp) =>
       new Intl.DateTimeFormat("zh-CN", {
         hour: "2-digit",
@@ -14,6 +13,11 @@ export function createPopupView(
   } = {},
 ) {
   let currentEditingHolding = null;
+  let activeViewName = "list";
+  let activeViewTransition = null;
+  let pendingDeleteConfirmation = null;
+  const renderedValues = new Map();
+  const EASE_OUT = "cubic-bezier(0.23, 1, 0.32, 1)";
   const numericSortKeys = new Set([
     "current",
     "changePercent",
@@ -25,17 +29,97 @@ export function createPopupView(
     return documentRef.getElementById(id);
   }
 
-  function showView(viewName) {
+  function shouldReduceMotion() {
+    return Boolean(
+      documentRef.defaultView?.matchMedia?.("(prefers-reduced-motion: reduce)")
+        .matches,
+    );
+  }
+
+  function cancelViewTransition() {
+    if (!activeViewTransition) {
+      return;
+    }
+
+    activeViewTransition.animations.forEach((animation) => {
+      try {
+        animation.commitStyles?.();
+      } catch {
+        // commitStyles is optional and can fail for detached test elements.
+      }
+      animation.cancel?.();
+    });
+    activeViewTransition.cleanup();
+    activeViewTransition = null;
+  }
+
+  function showView(viewName, { animate = true } = {}) {
     const viewList = element("viewList");
     const viewDetail = element("viewDetail");
+    const targetView = viewName === "detail" ? viewDetail : viewList;
+    const sourceView = viewName === "detail" ? viewList : viewDetail;
 
-    if (viewName === "detail") {
-      viewList.classList.remove("active");
-      viewDetail.classList.add("active");
-    } else {
-      viewDetail.classList.remove("active");
-      viewList.classList.add("active");
+    if (
+      viewName === activeViewName &&
+      targetView.classList.contains("active") &&
+      !sourceView.classList.contains("active")
+    ) {
+      return;
     }
+
+    cancelViewTransition();
+    activeViewName = viewName;
+
+    const setFinalState = () => {
+      viewList.classList.toggle("active", viewName === "list");
+      viewDetail.classList.toggle("active", viewName === "detail");
+      viewList.classList.remove("view-leaving");
+      viewDetail.classList.remove("view-leaving");
+      sourceView.style?.removeProperty?.("opacity");
+      sourceView.style?.removeProperty?.("transform");
+      targetView.style?.removeProperty?.("opacity");
+      targetView.style?.removeProperty?.("transform");
+    };
+
+    if (
+      !animate ||
+      shouldReduceMotion() ||
+      typeof sourceView.animate !== "function" ||
+      typeof targetView.animate !== "function"
+    ) {
+      setFinalState();
+      return;
+    }
+
+    const direction = viewName === "detail" ? 1 : -1;
+    targetView.classList.add("active");
+    sourceView.classList.add("view-leaving");
+    const outgoing = sourceView.animate(
+      [
+        { opacity: 1, transform: "translateX(0)" },
+        { opacity: 0, transform: `translateX(${-8 * direction}px)` },
+      ],
+      { duration: 220, easing: EASE_OUT, fill: "forwards" },
+    );
+    const incoming = targetView.animate(
+      [
+        { opacity: 0, transform: `translateX(${12 * direction}px)` },
+        { opacity: 1, transform: "translateX(0)" },
+      ],
+      { duration: 220, easing: EASE_OUT, fill: "forwards" },
+    );
+    const transition = {
+      animations: [outgoing, incoming],
+      cleanup: setFinalState,
+    };
+    activeViewTransition = transition;
+    Promise.allSettled([outgoing.finished, incoming.finished]).then(() => {
+      if (activeViewTransition !== transition) {
+        return;
+      }
+      setFinalState();
+      activeViewTransition = null;
+    });
   }
 
   function formatNumber(value, defaultDecimals = 2, maxDecimals = 4) {
@@ -50,6 +134,42 @@ export function createPopupView(
     return decimals <= defaultDecimals
       ? parsed.toFixed(defaultDecimals)
       : formatted;
+  }
+
+  function animateElement(target, keyframes, options) {
+    if (
+      shouldReduceMotion() ||
+      !target ||
+      typeof target.animate !== "function"
+    ) {
+      return null;
+    }
+    return target.animate(keyframes, { easing: EASE_OUT, ...options });
+  }
+
+  function updateRenderedValue(target, key, text, tone = null) {
+    const previous = renderedValues.get(key);
+    target.textContent = text;
+    renderedValues.set(key, text);
+
+    if (previous == null || previous === text || text === "--") {
+      return;
+    }
+
+    const flashColor =
+      tone === "up"
+        ? "var(--up-flash)"
+        : tone === "down"
+          ? "var(--down-flash)"
+          : "var(--bg-hover)";
+    animateElement(
+      target,
+      [
+        { backgroundColor: flashColor },
+        { backgroundColor: "transparent" },
+      ],
+      { duration: 160 },
+    );
   }
 
   function readFormRecords() {
@@ -83,7 +203,12 @@ export function createPopupView(
       summary.totalCost > 0 ? formatNumber(summary.totalCost) : "--";
   }
 
-  function addRecordRow(date = "", price = "", shares = "") {
+  function addRecordRow(
+    date = "",
+    price = "",
+    shares = "",
+    { animate = false, focus = false } = {},
+  ) {
     const container = element("recordsList");
     const row = documentRef.createElement("div");
     row.className = "record-row";
@@ -91,22 +216,50 @@ export function createPopupView(
     <input type="date" class="rec-date" value="${date}" />
     <input type="number" step="0.01" class="rec-price" placeholder="买入单价" value="${price != null ? price : ""}" />
     <input type="number" step="1" min="1" class="rec-shares" placeholder="买入股数" value="${shares != null ? shares : ""}" />
-    <span class="remove-rec-btn" title="删除此笔记录">×</span>
+    <button type="button" class="remove-rec-btn" title="删除此笔记录" aria-label="删除此笔买入记录">×</button>
   `;
 
     row.querySelectorAll("input").forEach((input) => {
       input.addEventListener("input", recalculateSummary);
     });
-    row.querySelector(".remove-rec-btn").addEventListener("click", () => {
+    row.querySelector(".remove-rec-btn").addEventListener("click", async () => {
+      const animation = animateElement(
+        row,
+        [
+          { opacity: 1, transform: "translateX(0) scale(1)" },
+          { opacity: 0, transform: "translateX(6px) scale(0.98)" },
+        ],
+        { duration: 180, fill: "forwards" },
+      );
+      if (animation) {
+        await animation.finished.catch(() => {});
+      }
       row.remove();
       recalculateSummary();
     });
 
     container.appendChild(row);
+    if (animate) {
+      animateElement(
+        row,
+        [
+          { opacity: 0, transform: "translateY(4px) scale(0.98)" },
+          { opacity: 1, transform: "translateY(0) scale(1)" },
+        ],
+        { duration: 180 },
+      );
+    }
+    if (focus) {
+      row.querySelector(".rec-date").focus?.({ preventScroll: true });
+      row.scrollIntoView?.({
+        block: "nearest",
+        behavior: shouldReduceMotion() ? "auto" : "smooth",
+      });
+    }
     recalculateSummary();
   }
 
-  function openDetailView(holding) {
+  function openDetailView(holding, { animate = true } = {}) {
     currentEditingHolding = holding;
     const headerTitle = element("detailHeaderTitle");
     const codeInput = element("detailCode");
@@ -138,7 +291,7 @@ export function createPopupView(
     }
 
     recalculateSummary();
-    showView("detail");
+    showView("detail", { animate });
   }
 
   function renderIndices(indices) {
@@ -150,8 +303,14 @@ export function createPopupView(
 
     values.forEach(([id, index]) => {
       const target = element(id);
-      target.textContent = index ? index.current.toFixed(2) : "--";
-      target.className = `idx-val ${index && index.changePercent >= 0 ? "up" : "down"}`;
+      const tone = index ? (index.changePercent >= 0 ? "up" : "down") : null;
+      updateRenderedValue(
+        target,
+        `index:${id}`,
+        index ? index.current.toFixed(2) : "--",
+        tone,
+      );
+      target.className = `idx-val ${tone || ""}`;
     });
   }
 
@@ -199,22 +358,64 @@ export function createPopupView(
       <td class="stock-name-cell" title="点击进入二级编辑界面">
         ${displayName}
       </td>
-      <td>${quote ? quote.current.toFixed(2) : "--"}</td>
-      <td class="${changeClass}">${quote ? `${quote.changePercent >= 0 ? "+" : ""}${quote.changePercent.toFixed(2)}%` : "--"}</td>
-      <td class="${isHeld && todayProfit != null ? `${todayClass} num-blur` : "empty"}">${todayText}</td>
-      <td class="${isHeld && profit != null ? `${profitClass} num-blur` : "empty"}">
-        ${profitText}
+      <td data-field="current"></td>
+      <td data-field="changePercent" class="${changeClass}"></td>
+      <td data-field="todayProfit" class="${isHeld && todayProfit != null ? `${todayClass} num-blur` : "empty"}"></td>
+      <td data-field="holdingProfit" class="${isHeld && profit != null ? `${profitClass} num-blur` : "empty"}">
+        <span data-field="holdingProfitValue"></span>
         ${profitRate != null ? `<span class="stock-sub ${profitClass}">${profitRate >= 0 ? "+" : ""}${profitRate.toFixed(2)}%</span>` : ""}
       </td>
     `;
+      row.dataset.code = holding.code;
       const stockNameCell = row.querySelector(".stock-name-cell");
       stockNameCell.textContent = displayName;
       const baseTitle = `点击进入编辑 · 代码：${holding.code}`;
       stockNameCell.title = bossMode
         ? `项目编号：${holding.code}`
         : `${baseTitle} · 持仓：${formatNumber(metrics.totalShares, 0)} 股 · 均价：${formatNumber(metrics.averageCost)}`;
+      const currentText = quote ? quote.current.toFixed(2) : "--";
+      const changeText = quote
+        ? `${quote.changePercent >= 0 ? "+" : ""}${quote.changePercent.toFixed(2)}%`
+        : "--";
+      updateRenderedValue(
+        row.querySelector('[data-field="current"]'),
+        `${holding.code}:current`,
+        currentText,
+      );
+      updateRenderedValue(
+        row.querySelector('[data-field="changePercent"]'),
+        `${holding.code}:changePercent`,
+        changeText,
+        changeClass,
+      );
+      updateRenderedValue(
+        row.querySelector('[data-field="todayProfit"]'),
+        `${holding.code}:todayProfit`,
+        todayText,
+        todayClass,
+      );
+      updateRenderedValue(
+        row.querySelector('[data-field="holdingProfitValue"]'),
+        `${holding.code}:holdingProfit`,
+        profitText,
+        profitClass,
+      );
       if (!bossMode) {
-        stockNameCell.addEventListener("click", () => openDetailView(holding));
+        row.classList.add("interactive-row");
+        row.setAttribute("role", "button");
+        row.setAttribute("tabindex", "0");
+        row.setAttribute(
+          "aria-label",
+          `编辑持仓 ${displayName}，代码 ${holding.code}`,
+        );
+        row.addEventListener("click", () => openDetailView(holding));
+        row.addEventListener("keydown", (event) => {
+          if (event.key !== "Enter" && event.key !== " ") {
+            return;
+          }
+          event.preventDefault();
+          openDetailView(holding, { animate: false });
+        });
       }
       tableBody.appendChild(row);
     });
@@ -222,12 +423,24 @@ export function createPopupView(
 
   function renderTotals(totals) {
     const today = element("totalToday");
-    today.textContent = `${totals.totalTodayProfit >= 0 ? "+" : ""}${totals.totalTodayProfit.toFixed(2)}`;
-    today.className = `value num-blur ${totals.totalTodayProfit >= 0 ? "up" : "down"}`;
+    const todayTone = totals.totalTodayProfit >= 0 ? "up" : "down";
+    updateRenderedValue(
+      today,
+      "total:today",
+      `${totals.totalTodayProfit >= 0 ? "+" : ""}${totals.totalTodayProfit.toFixed(2)}`,
+      todayTone,
+    );
+    today.className = `value num-blur ${todayTone}`;
 
     const holding = element("totalHolding");
-    holding.textContent = `${totals.totalHoldingProfit >= 0 ? "+" : ""}${totals.totalHoldingProfit.toFixed(2)}`;
-    holding.className = `value num-blur ${totals.totalHoldingProfit >= 0 ? "up" : "down"}`;
+    const holdingTone = totals.totalHoldingProfit >= 0 ? "up" : "down";
+    updateRenderedValue(
+      holding,
+      "total:holding",
+      `${totals.totalHoldingProfit >= 0 ? "+" : ""}${totals.totalHoldingProfit.toFixed(2)}`,
+      holdingTone,
+    );
+    holding.className = `value num-blur ${holdingTone}`;
   }
 
   function render(snapshot) {
@@ -287,6 +500,14 @@ export function createPopupView(
         "sort-desc",
         hasDirection && snapshot.state.settings.sortOrder === "desc",
       );
+      header.setAttribute(
+        "aria-sort",
+        hasDirection
+          ? snapshot.state.settings.sortOrder === "asc"
+            ? "ascending"
+            : "descending"
+          : "none",
+      );
     });
 
     renderIndices(snapshot.indices);
@@ -294,13 +515,97 @@ export function createPopupView(
     renderTotals(snapshot.totals);
   }
 
+  function positionDeletePopover(popover, trigger) {
+    if (
+      typeof popover.getBoundingClientRect !== "function" ||
+      typeof trigger.getBoundingClientRect !== "function" ||
+      typeof popover.style?.setProperty !== "function"
+    ) {
+      return;
+    }
+
+    const popoverRect = popover.getBoundingClientRect();
+    const triggerRect = trigger.getBoundingClientRect();
+    const originX = Math.max(
+      16,
+      Math.min(
+        popoverRect.width - 16,
+        triggerRect.left + triggerRect.width / 2 - popoverRect.left,
+      ),
+    );
+    const originY = Math.max(
+      0,
+      Math.min(popoverRect.height, triggerRect.top - popoverRect.top),
+    );
+    popover.style.setProperty("--origin-x", `${originX}px`);
+    popover.style.setProperty("--origin-y", `${originY}px`);
+  }
+
+  function closeDeleteConfirmation(confirmed) {
+    if (!pendingDeleteConfirmation) {
+      return;
+    }
+
+    const pending = pendingDeleteConfirmation;
+    pendingDeleteConfirmation = null;
+    const animation = animateElement(
+      pending.popover,
+      [
+        { opacity: 1, transform: "translateY(0) scale(1)" },
+        { opacity: 0, transform: "translateY(4px) scale(0.96)" },
+      ],
+      { duration: 140, fill: "forwards" },
+    );
+    Promise.resolve(animation?.finished)
+      .catch(() => {})
+      .then(() => {
+        pending.popover.hidden = true;
+        pending.trigger.focus?.({ preventScroll: true });
+        pending.resolve(confirmed);
+      });
+  }
+
+  function requestDeleteConfirmation() {
+    const popover = element("deleteConfirmPopover");
+    const trigger = element("deleteDetailBtn");
+    if (!popover || !trigger) {
+      return Promise.resolve(false);
+    }
+
+    if (pendingDeleteConfirmation) {
+      closeDeleteConfirmation(false);
+    }
+
+    popover.hidden = false;
+    const holdingName =
+      currentEditingHolding?.name || currentEditingHolding?.code || "这项持仓";
+    const copy = element("deleteConfirmCopy");
+    if (copy) {
+      copy.textContent = `“${holdingName}”的买入记录将从本机移除，此操作无法撤销。`;
+    }
+    positionDeletePopover(popover, trigger);
+    animateElement(
+      popover,
+      [
+        { opacity: 0, transform: "translateY(4px) scale(0.96)" },
+        { opacity: 1, transform: "translateY(0) scale(1)" },
+      ],
+      { duration: 180 },
+    );
+    element("confirmDeleteBtn")?.focus?.({ preventScroll: true });
+
+    return new Promise((resolve) => {
+      pendingDeleteConfirmation = { popover, trigger, resolve };
+    });
+  }
+
   function bind(actions) {
-    async function returnToList() {
-      showView("list");
+    async function returnToList({ animate = true } = {}) {
+      showView("list", { animate });
       await actions.refresh();
     }
 
-    async function saveDetail() {
+    async function saveDetail({ animateReturn = true } = {}) {
       const codeRaw = element("detailCode").value.trim();
       if (!currentEditingHolding && !codeRaw) {
         alertFn("请输入股票名称或代码");
@@ -312,7 +617,7 @@ export function createPopupView(
         codeRaw,
         records: readFormRecords(),
       });
-      await returnToList();
+      await returnToList({ animate: animateReturn });
     }
 
     element("openAddBtn").addEventListener("click", () => openDetailView(null));
@@ -320,22 +625,51 @@ export function createPopupView(
     element("refreshBtn").addEventListener("click", actions.refresh);
     documentRef.querySelectorAll("th[data-key]").forEach((header) => {
       header.addEventListener("click", () => actions.sortBy(header.dataset.key));
+      header.addEventListener("keydown", (event) => {
+        if (event.key !== "Enter" && event.key !== " ") {
+          return;
+        }
+        event.preventDefault();
+        actions.sortBy(header.dataset.key);
+      });
     });
     element("backBtn").addEventListener("click", returnToList);
-    element("addRecordBtn").addEventListener("click", () => addRecordRow());
+    element("addRecordBtn").addEventListener("click", () =>
+      addRecordRow("", "", "", { animate: true, focus: true }),
+    );
     element("saveDetailBtn").addEventListener("click", saveDetail);
     element("deleteDetailBtn").addEventListener("click", async () => {
-      if (
-        currentEditingHolding &&
-        confirmFn(
-          `确定要删除 ${currentEditingHolding.name || currentEditingHolding.code} 的持仓记录吗？`,
-        )
-      ) {
+      if (currentEditingHolding && (await requestDeleteConfirmation())) {
         await actions.deleteHolding(currentEditingHolding.code);
         await returnToList();
       }
     });
+    element("cancelDeleteBtn")?.addEventListener("click", () =>
+      closeDeleteConfirmation(false),
+    );
+    element("confirmDeleteBtn")?.addEventListener("click", () =>
+      closeDeleteConfirmation(true),
+    );
+    documentRef.addEventListener?.("pointerdown", (event) => {
+      if (!pendingDeleteConfirmation) {
+        return;
+      }
+      const { popover, trigger } = pendingDeleteConfirmation;
+      if (
+        popover.contains?.(event.target) ||
+        trigger.contains?.(event.target) ||
+        event.target === trigger
+      ) {
+        return;
+      }
+      closeDeleteConfirmation(false);
+    });
     documentRef.addEventListener("keydown", async (event) => {
+      if (event.key === "Escape" && pendingDeleteConfirmation) {
+        event.preventDefault();
+        closeDeleteConfirmation(false);
+        return;
+      }
       if (
         event.repeat ||
         !element("viewDetail").classList.contains("active") ||
@@ -346,10 +680,10 @@ export function createPopupView(
 
       if (event.key === "Enter") {
         event.preventDefault();
-        await saveDetail();
+        await saveDetail({ animateReturn: false });
       } else if (event.key === "Escape") {
         event.preventDefault();
-        await returnToList();
+        await returnToList({ animate: false });
       }
     });
   }

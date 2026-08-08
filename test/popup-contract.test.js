@@ -1,6 +1,5 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { createHash } from "node:crypto";
 import { readFile } from "node:fs/promises";
 
 const REQUIRED_IDS = [
@@ -27,30 +26,32 @@ const REQUIRED_IDS = [
   "recordsList",
   "saveDetailBtn",
   "deleteDetailBtn",
+  "deleteConfirmPopover",
+  "cancelDeleteBtn",
+  "confirmDeleteBtn",
 ];
 
-function sha256(value) {
-  return createHash("sha256").update(value, "utf8").digest("hex").toUpperCase();
-}
-
-test("popup keeps its existing DOM and CSS with one module entry", async () => {
+test("popup keeps its required DOM and Apple-style interaction contracts", async () => {
   const html = await readFile(new URL("../popup.html", import.meta.url), "utf8");
+  const viewSource = await readFile(
+    new URL("../src/ui/popup-view.js", import.meta.url),
+    "utf8",
+  );
 
   REQUIRED_IDS.forEach((id) => {
     assert.match(html, new RegExp(`id=["']${id}["']`));
   });
 
-  const style = html.match(/<style>[\s\S]*?<\/style>/)?.[0];
-  assert.equal(
-    sha256(style),
-    "195E1CFC77ADDC2EE0207C855D7B945B3EC02FB43766CD189E04156EDEB76982",
+  assert.match(html, /@media \(prefers-color-scheme: dark\)/);
+  assert.match(html, /@media \(prefers-reduced-motion: reduce\)/);
+  assert.match(html, /--ease-out: cubic-bezier\(0\.23, 1, 0\.32, 1\)/);
+  assert.doesNotMatch(html, /transition:\s*all\b/);
+  assert.match(
+    html,
+    /id="deleteConfirmPopover"[^>]*role="alertdialog"[^>]*aria-modal="true"/,
   );
-
-  const scriptStart = html.indexOf("  <script");
-  assert.equal(
-    sha256(html.slice(0, scriptStart)),
-    "4FE0CEC9FC844AA0B1670FC08EE48EEB520D93F1726310B146F350A3CDFB72ED",
-  );
+  assert.match(viewSource, /class="remove-rec-btn"[^>]*aria-label=/);
+  assert.match(html, /<th[^>]*tabindex="0"[^>]*aria-sort="none"/);
   assert.match(html, /id="mofishBtn"[^>]*aria-label="切换隐私模式"/);
   assert.deepEqual(html.match(/<script[^>]*src=["'][^"']+["'][^>]*><\/script>/g), [
     '<script type="module" src="src/main.js"></script>',

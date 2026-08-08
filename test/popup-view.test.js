@@ -17,6 +17,8 @@ function createElement(value = "") {
     className: "",
     innerHTML: "",
     title: "",
+    hidden: false,
+    focused: false,
     attributes: {},
     children,
     classList: {
@@ -40,11 +42,31 @@ function createElement(value = "") {
     appendChild(child) {
       children.push(child);
     },
+    focus() {
+      this.focused = true;
+    },
+    contains(target) {
+      return target === this || children.includes(target);
+    },
+    remove() {
+      this.removed = true;
+    },
+    scrollIntoView() {},
     querySelector(selector) {
       if (!namedChildren.has(selector)) {
         namedChildren.set(selector, createElement());
       }
       return namedChildren.get(selector);
+    },
+    querySelectorAll(selector) {
+      if (selector === "input") {
+        return [
+          this.querySelector(".rec-date"),
+          this.querySelector(".rec-price"),
+          this.querySelector(".rec-shares"),
+        ];
+      }
+      return [];
     },
   };
 }
@@ -52,8 +74,25 @@ function createElement(value = "") {
 function createRenderDocument() {
   const elements = new Map();
   [
+    "viewList",
+    "viewDetail",
+    "openAddBtn",
     "refreshBtn",
     "mofishBtn",
+    "backBtn",
+    "addRecordBtn",
+    "saveDetailBtn",
+    "deleteDetailBtn",
+    "deleteConfirmPopover",
+    "cancelDeleteBtn",
+    "confirmDeleteBtn",
+    "deleteConfirmCopy",
+    "detailHeaderTitle",
+    "detailCode",
+    "recordsList",
+    "summaryTotalShares",
+    "summaryAvgCost",
+    "summaryTotalCost",
     "loadingState",
     "emptyState",
     "rows",
@@ -71,6 +110,7 @@ function createRenderDocument() {
   copyNodes[0].dataset.normalText = "极简盯盘";
   copyNodes[0].dataset.bossText = "项目数据概览";
   const body = createElement();
+  const documentListeners = new Map();
 
   return {
     elements,
@@ -88,7 +128,9 @@ function createRenderDocument() {
         return [];
       },
       createElement: () => createElement(),
+      addEventListener: (type, listener) => documentListeners.set(type, listener),
     },
+    documentListeners,
   };
 }
 
@@ -302,6 +344,190 @@ test("boss key disguises the list while keeping market values readable", () => {
   assert.equal(elements.get("loadingState").textContent, "同步于 10:32");
   assert.equal(stockName.textContent, "sh600519");
   assert.equal(elements.get("totalToday").textContent, "+20.00");
+});
+
+test("holding rows are accessible press targets outside boss-key mode", async () => {
+  const { documentRef, elements } = createRenderDocument();
+  elements.get("viewDetail").classList.remove("active");
+  const view = createPopupView(documentRef);
+  view.render({
+    state: {
+      holdings: [],
+      settings: { mofishMode: false, sortBy: null, sortOrder: "desc" },
+    },
+    rows: [
+      {
+        holding: { code: "sh600519", name: "贵州茅台", records: [] },
+        quote: { current: 1500, changePercent: 1 },
+        metrics: {
+          totalShares: 10,
+          averageCost: 12.5,
+          todayProfit: 20,
+          holdingProfit: 30,
+          holdingProfitRate: 25,
+        },
+      },
+    ],
+    totals: { totalTodayProfit: 20, totalHoldingProfit: 30 },
+    indices: { sh: null, cyb: null, hs300: null },
+    hasRefreshed: true,
+    refreshStatus: "success",
+    lastUpdatedAt: 1_000,
+    isLoading: false,
+  });
+
+  const row = elements.get("rows").children[0];
+  assert.equal(row.attributes.role, "button");
+  assert.equal(row.attributes.tabindex, "0");
+  let prevented = 0;
+  await row.trigger("keydown", {
+    key: "Enter",
+    preventDefault: () => {
+      prevented += 1;
+    },
+  });
+  assert.equal(prevented, 1);
+  assert.equal(elements.get("viewDetail").classList.contains("active"), true);
+  assert.equal(elements.get("viewList").classList.contains("active"), false);
+
+  const privateRender = createRenderDocument();
+  privateRender.elements.get("viewDetail").classList.remove("active");
+  createPopupView(privateRender.documentRef).render({
+    state: {
+      holdings: [],
+      settings: { mofishMode: true, sortBy: null, sortOrder: "desc" },
+    },
+    rows: [
+      {
+        holding: { code: "sh600519", name: "贵州茅台" },
+        quote: { current: 1500, changePercent: 1 },
+        metrics: {
+          totalShares: 10,
+          averageCost: 12.5,
+          todayProfit: 20,
+          holdingProfit: 30,
+          holdingProfitRate: 25,
+        },
+      },
+    ],
+    totals: { totalTodayProfit: 20, totalHoldingProfit: 30 },
+    indices: { sh: null, cyb: null, hs300: null },
+    hasRefreshed: true,
+    refreshStatus: "success",
+    lastUpdatedAt: 1_000,
+    isLoading: false,
+  });
+  assert.equal(
+    privateRender.elements.get("rows").children[0].attributes.role,
+    undefined,
+  );
+});
+
+test("unchanged totals do not animate while changed totals receive one flash", () => {
+  const { documentRef, elements } = createRenderDocument();
+  let animations = 0;
+  elements.get("totalToday").animate = () => {
+    animations += 1;
+    return { finished: Promise.resolve(), cancel() {} };
+  };
+  const view = createPopupView(documentRef);
+  const snapshot = {
+    state: {
+      holdings: [],
+      settings: { mofishMode: false, sortBy: null, sortOrder: "desc" },
+    },
+    rows: [],
+    totals: { totalTodayProfit: 0, totalHoldingProfit: 0 },
+    indices: { sh: null, cyb: null, hs300: null },
+    hasRefreshed: true,
+    refreshStatus: "success",
+    lastUpdatedAt: 1_000,
+    isLoading: false,
+  };
+
+  view.render(snapshot);
+  view.render(snapshot);
+  assert.equal(animations, 0);
+  view.render({
+    ...snapshot,
+    totals: { ...snapshot.totals, totalTodayProfit: 1 },
+  });
+  assert.equal(animations, 1);
+});
+
+test("custom delete confirmation supports cancel, Escape and explicit confirmation", async () => {
+  const { documentRef, elements, documentListeners } = createRenderDocument();
+  elements.get("viewDetail").classList.remove("active");
+  let deletions = 0;
+  const view = createPopupView(documentRef);
+  view.bind({
+    refresh: () => {},
+    toggleMofishMode: () => {},
+    sortBy: () => {},
+    saveHolding: () => {},
+    deleteHolding: () => {
+      deletions += 1;
+    },
+  });
+  view.render({
+    state: {
+      holdings: [],
+      settings: { mofishMode: false, sortBy: null, sortOrder: "desc" },
+    },
+    rows: [
+      {
+        holding: { code: "sh600519", name: "贵州茅台", records: [] },
+        quote: { current: 1500, changePercent: 1 },
+        metrics: {
+          totalShares: 10,
+          averageCost: 12.5,
+          todayProfit: 20,
+          holdingProfit: 30,
+          holdingProfitRate: 25,
+        },
+      },
+    ],
+    totals: { totalTodayProfit: 20, totalHoldingProfit: 30 },
+    indices: { sh: null, cyb: null, hs300: null },
+    hasRefreshed: true,
+    refreshStatus: "success",
+    lastUpdatedAt: 1_000,
+    isLoading: false,
+  });
+
+  await elements.get("rows").children[0].trigger("click");
+  const cancelledDeletion = elements.get("deleteDetailBtn").trigger("click");
+  assert.equal(elements.get("deleteConfirmPopover").hidden, false);
+  assert.equal(deletions, 0);
+  await elements.get("cancelDeleteBtn").trigger("click");
+  await cancelledDeletion;
+  assert.equal(deletions, 0);
+  assert.equal(elements.get("deleteConfirmPopover").hidden, true);
+
+  const escapedDeletion = elements.get("deleteDetailBtn").trigger("click");
+  let prevented = 0;
+  await documentListeners.get("keydown")?.({
+    key: "Escape",
+    preventDefault: () => {
+      prevented += 1;
+    },
+  });
+  await escapedDeletion;
+  assert.equal(prevented, 1);
+  assert.equal(deletions, 0);
+
+  const outsideCancelledDeletion = elements
+    .get("deleteDetailBtn")
+    .trigger("click");
+  await documentListeners.get("pointerdown")?.({ target: createElement() });
+  await outsideCancelledDeletion;
+  assert.equal(deletions, 0);
+
+  const deletion = elements.get("deleteDetailBtn").trigger("click");
+  await elements.get("confirmDeleteBtn").trigger("click");
+  await deletion;
+  assert.equal(deletions, 1);
+  assert.equal(elements.get("deleteConfirmPopover").hidden, true);
 });
 
 test("Enter saves and Escape returns from the holding detail view", async () => {
