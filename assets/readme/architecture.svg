@@ -73,9 +73,9 @@
       <g transform="translate(154, 0)">
         <rect width="138" height="120" rx="8" fill="#0F172A" stroke="#334155" stroke-width="1" />
         <text x="12" y="24" fill="#34D399" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="700">Portfolio</text>
-        <text x="12" y="44" fill="#94A3B8" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11">持仓市值计算</text>
+        <text x="12" y="44" fill="#94A3B8" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11">加权成本/持仓计算</text>
         <text x="12" y="62" fill="#94A3B8" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11">当日/累计盈亏</text>
-        <text x="12" y="80" fill="#94A3B8" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11">收益率动态比例</text>
+        <text x="12" y="80" fill="#94A3B8" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11">多笔补仓记录明细</text>
       </g>
 
       <!-- Storage Module -->
@@ -83,8 +83,8 @@
         <rect width="138" height="120" rx="8" fill="#0F172A" stroke="#334155" stroke-width="1" />
         <text x="12" y="24" fill="#A78BFA" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="700">Repository</text>
         <text x="12" y="44" fill="#94A3B8" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11">本地数据读写</text>
-        <text x="12" y="62" fill="#94A3B8" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11">遮罩状态持久化</text>
-        <text x="12" y="80" fill="#94A3B8" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11">持仓列表同步</text>
+        <text x="12" y="62" fill="#94A3B8" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11">老板键状态持久化</text>
+        <text x="12" y="80" fill="#94A3B8" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11">持仓版本兼容同步</text>
       </g>
     </g>
   </g>
@@ -101,11 +101,11 @@
     <text x="34" y="22" fill="#F8FAFC" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="13" font-weight="700">用户界面 (Popup UI)</text>
 
     <!-- Content -->
-    <text x="20" y="65" fill="#94A3B8" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="12">• 极简暗黑/明亮自适应</text>
-    <text x="20" y="90" fill="#94A3B8" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="12">• 一键切换“老板键”</text>
-    <text x="20" y="115" fill="#94A3B8" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="12">• 交互式编辑持仓/数量</text>
+    <text x="20" y="65" fill="#94A3B8" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="12">• Liquid Glass 极光毛玻璃</text>
+    <text x="20" y="90" fill="#94A3B8" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="12">• YYYY/MM/DD 与数字自适应</text>
+    <text x="20" y="115" fill="#94A3B8" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="12">• 多笔补仓 / 一键老板键</text>
 
     <rect x="16" y="132" width="198" height="42" rx="6" fill="#1E293B" stroke="#334155" stroke-width="0.8" />
-    <text x="26" y="157" fill="#F1F5F9" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11" font-weight="600">🛡️ 100% 隐私无感追踪</text>
+    <text x="26" y="157" fill="#F1F5F9" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11" font-weight="600">🛡️ 100% 本地无感追踪</text>
   </g>
 </svg>
