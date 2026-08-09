@@ -44,7 +44,10 @@
     --down-flash: rgba(16, 185, 129, 0.18);
     --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
     --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
-    --ease-spring: cubic-bezier(0.16, 1, 0.3, 1);
+    --scrollbar-thumb: rgba(0, 0, 0, 0.16);
+    --scrollbar-thumb-hover: rgba(0, 0, 0, 0.32);
+    --scrollbar-thumb-active: rgba(0, 0, 0, 0.48);
+    --scrollbar-shadow: inset 0 0.5px 0.5px 0 rgba(255, 255, 255, 0.7), 0 1px 3px rgba(0, 0, 0, 0.08);
   }
 
   @media (prefers-color-scheme: dark) {
@@ -76,16 +79,25 @@
       --focus-ring: 0 0 0 3px rgba(10, 132, 255, 0.36), 0 2px 10px rgba(10, 132, 255, 0.2);
       --up-flash: rgba(255, 69, 58, 0.22);
       --down-flash: rgba(48, 209, 88, 0.22);
+      --scrollbar-thumb: rgba(255, 255, 255, 0.22);
+      --scrollbar-thumb-hover: rgba(255, 255, 255, 0.40);
+      --scrollbar-thumb-active: rgba(255, 255, 255, 0.58);
+      --scrollbar-shadow: inset 0 0.5px 0.5px 0 rgba(255, 255, 255, 0.35), 0 1px 4px rgba(0, 0, 0, 0.3);
     }
   }
 
-  * { box-sizing: border-box; margin: 0; padding: 0; }
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    scrollbar-width: thin;
+    scrollbar-color: var(--scrollbar-thumb) transparent;
+  }
 
   html, body {
     width: 400px;
     max-height: 600px;
-    overflow-x: hidden;
-    overflow-y: auto;
+    overflow: hidden !important;
     font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Segoe UI", Roboto, "PingFang SC", "Microsoft YaHei", sans-serif;
     font-size: 13px;
     color: var(--text-primary);
@@ -94,19 +106,49 @@
     position: relative;
   }
 
+  /* --- Apple Liquid Glass Scrollbar Style --- */
   ::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
+    width: 6px !important;
+    height: 6px !important;
   }
+
   ::-webkit-scrollbar-track {
-    background: transparent;
+    background: transparent !important;
+    border-radius: 9999px !important;
   }
+
   ::-webkit-scrollbar-thumb {
-    background: var(--border-color);
-    border-radius: 6px;
+    background-color: var(--scrollbar-thumb) !important;
+    background-clip: padding-box !important;
+    border: 1px solid transparent !important;
+    border-radius: 9999px !important;
+    box-shadow: var(--scrollbar-shadow) !important;
+    backdrop-filter: blur(8px) !important;
+    -webkit-backdrop-filter: blur(8px) !important;
+    transition: background-color 180ms var(--ease-out) !important;
   }
+
   ::-webkit-scrollbar-thumb:hover {
-    background: color-mix(in srgb, var(--text-secondary) 50%, transparent);
+    background-color: var(--scrollbar-thumb-hover) !important;
+  }
+
+  ::-webkit-scrollbar-thumb:active {
+    background-color: var(--scrollbar-thumb-active) !important;
+  }
+
+  ::-webkit-scrollbar-button,
+  ::-webkit-scrollbar-button:start,
+  ::-webkit-scrollbar-button:end,
+  ::-webkit-scrollbar-button:vertical:start:decrement,
+  ::-webkit-scrollbar-button:vertical:end:increment {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+  }
+
+  ::-webkit-scrollbar-corner {
+    display: none !important;
+    background: transparent !important;
   }
 
   @media (prefers-color-scheme: dark) {
@@ -364,9 +406,17 @@
     font-variant-numeric: tabular-nums;
   }
 
-  .table-wrapper {
+  .table-header-wrapper {
     width: 100%;
+    overflow: hidden;
+    padding-right: 4px;
+  }
+  .table-body-wrapper {
+    width: 100%;
+    max-height: 200px;
     overflow-x: hidden;
+    overflow-y: auto;
+    padding-right: 4px;
   }
   table {
     width: 100%;
@@ -617,7 +667,7 @@
     gap: 6px;
     max-height: 160px;
     overflow-y: auto;
-    padding: 6px;
+    padding: 6px 4px 6px 6px;
     margin: -6px;
   }
   .record-row {
@@ -855,7 +905,7 @@
           </div>
         </div>
 
-        <div class="table-wrapper">
+        <div class="table-header-wrapper">
           <table>
             <thead>
               <tr>
@@ -866,6 +916,10 @@
                 <th scope="col" tabindex="0" aria-sort="none" data-key="holdingProfit" data-normal-text="持仓盈亏" data-boss-text="累计进展">持仓盈亏</th>
               </tr>
             </thead>
+          </table>
+        </div>
+        <div class="table-body-wrapper">
+          <table>
             <tbody id="rows"></tbody>
           </table>
         </div>
